@@ -1,0 +1,15 @@
+{"id": "C1", "question": "How old do you have to be to serve in the House of Representatives?", "source": "us-constitution.txt", "evidence": "attained to the Age of twenty five Years"}
+{"id": "C2", "question": "What is the minimum age to become President?", "source": "us-constitution.txt", "evidence": "attained to the Age of thirty five Years"}
+{"id": "C3", "question": "Which amendment gave women the right to vote?", "source": "us-constitution.txt", "evidence": "on account of sex"}
+{"id": "C4", "question": "How many times can the same person be elected President?", "source": "us-constitution.txt", "evidence": "more than twice"}
+{"id": "C5", "question": "Can the police search someone's home without a warrant?", "source": "us-constitution.txt", "evidence": "unreasonable searches and seizures"}
+{"id": "N1", "question": "What are the six Functions in the CSF Core?", "source": "nist-csf-2.0.pdf", "evidence": "GOVERN, IDENTIFY, PROTECT, DETECT, RESPOND, and RECOVER"}
+{"id": "N2", "question": "What are the four CSF Tiers called?", "source": "nist-csf-2.0.pdf", "evidence": "Partial (Tier 1), Risk Informed (Tier 2)"}
+{"id": "N3", "question": "Does the framework say anything about testing data backups?", "source": "nist-csf-2.0.pdf", "evidence": "Backups of data are created, protected, maintained, and tested"}
+{"id": "N4", "question": "What does a Target Profile describe?", "source": "nist-csf-2.0.pdf", "evidence": "A Target Profile specifies the desired outcomes"}
+{"id": "N5", "question": "Why should an organization manage cybersecurity risks that come from its suppliers?", "source": "nist-csf-2.0.pdf", "evidence": "supply chain risk management (SCRM) is critical"}
+{"id": "S1", "question": "Should I put a comma before 'and' at the end of a list?", "source": "elements-of-style.docx", "evidence": "use a comma after each term except the last"}
+{"id": "S2", "question": "Why is the active voice better than the passive?", "source": "elements-of-style.docx", "evidence": "The active voice is usually more direct and vigorous"}
+{"id": "S3", "question": "Why should writers cut unnecessary words from their sentences?", "source": "elements-of-style.docx", "evidence": "Vigorous writing is concise"}
+{"id": "S4", "question": "How do you write the possessive of a name ending in s, like Charles?", "source": "elements-of-style.docx", "evidence": "Charles's friend"}
+{"id": "S5", "question": "Is 'all right' written as one word or two?", "source": "elements-of-style.docx", "evidence": "Always written as two words"}

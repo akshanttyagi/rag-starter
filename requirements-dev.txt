@@ -1,0 +1,7 @@
+# Unit tests and linting. These cover the pure-Python parts (chunking, fusion,
+# loaders, citation parsing) and do not need PyTorch or a database.
+pytest==9.1.1
+ruff==0.17.2
+httpx==0.28.1
+pypdf==6.21.2
+python-docx==1.2.0

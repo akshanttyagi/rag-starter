@@ -1,0 +1,14 @@
+# Runtime dependencies of the API image.
+# PyTorch is installed separately in the Dockerfile from the CPU-only index, which
+# keeps the image about 2 GB smaller than the default CUDA build. For a local
+# (non-Docker) setup, install torch first: https://pytorch.org/get-started/locally/
+fastapi==0.161.1
+uvicorn==0.54.0
+python-multipart==0.0.32
+httpx==0.28.1
+psycopg[binary]==3.3.6
+psycopg-pool==3.3.3
+pgvector==0.5.1
+sentence-transformers==6.1.0
+pypdf==6.21.2
+python-docx==1.2.0

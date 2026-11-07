@@ -1,0 +1,114 @@
+# Self-hosted RAG starter.
+#
+#   CPU (default):  docker compose up -d --build --wait
+#   NVIDIA GPU:     set COMPOSE_PROFILES=gpu and LLM_PROVIDER=vllm in .env, then the same command
+#
+# Every setting has a default; copy .env.example to .env to change them.
+
+name: rag-starter
+
+services:
+  db:
+    image: pgvector/pgvector:0.8.7-pg17-trixie
+    environment:
+      POSTGRES_USER: rag
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rag}
+      POSTGRES_DB: rag
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rag -d rag"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  # Default model server: runs small quantised models on CPU (GPU too, if one is passed through).
+  ollama:
+    image: ollama/ollama:0.40.6
+    environment:
+      OLLAMA_CONTEXT_LENGTH: "4096"
+      OLLAMA_KEEP_ALIVE: 30m
+    volumes:
+      - ollama:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # GPU model server, only started with the "gpu" profile. Needs an NVIDIA GPU
+  # and the NVIDIA Container Toolkit. The default model needs about 10 GB of VRAM.
+  vllm:
+    image: vllm/vllm-openai:v0.32.0
+    profiles: ["gpu"]
+    command:
+      - ${VLLM_MODEL:-Qwen/Qwen2.5-7B-Instruct-AWQ}
+      - --max-model-len=8192
+      - --gpu-memory-utilization=${VLLM_GPU_MEMORY_UTILIZATION:-0.90}
+    environment:
+      HF_TOKEN: ${HF_TOKEN:-}
+    volumes:
+      - hf-cache:/root/.cache/huggingface
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 20m
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      args:
+        EMBED_MODEL: ${EMBED_MODEL:-BAAI/bge-small-en-v1.5}
+        RERANK_MODEL: ${RERANK_MODEL:-BAAI/bge-reranker-base}
+    image: rag-starter-api:latest
+    depends_on:
+      db:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      API_KEY: ${API_KEY:-change-me}
+      DATABASE_URL: postgresql://rag:${POSTGRES_PASSWORD:-rag}@db:5432/rag
+      EMBED_MODEL: ${EMBED_MODEL:-BAAI/bge-small-en-v1.5}
+      RERANK_MODEL: ${RERANK_MODEL:-BAAI/bge-reranker-base}
+      LLM_PROVIDER: ${LLM_PROVIDER:-ollama}
+      OLLAMA_URL: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:4b-instruct}
+      VLLM_URL: http://vllm:8000
+      VLLM_MODEL: ${VLLM_MODEL:-Qwen/Qwen2.5-7B-Instruct-AWQ}
+    ports:
+      # Bound to localhost only. Put a TLS reverse proxy in front before exposing it.
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+    volumes:
+      - ./data:/app/data:ro
+    # Healthy once the database, both local models and the LLM are ready. The first
+    # start downloads the LLM (about 2.5 GB), so the start period is generous.
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]
+      interval: 10s
+      timeout: 8s
+      retries: 3
+      start_period: 15m
+      start_interval: 5s
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  ollama:
+  hf-cache:
